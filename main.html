@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gurutattva - A Path of Transformation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero-section {
+            background-image: url('img.png'); /* Placeholder for a peaceful background image */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for text readability */
+            z-index: 0;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 9999px; /* Fully rounded */
+            overflow: hidden;
+            position: relative;
+            height: 24px; /* Fixed height for progress bar */
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #6366F1; /* Indigo-500 */
+            width: 0%; /* Initial width */
+            transition: width 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: white;
+            font-weight: bold;
+        }
+        .progress-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-container:hover .progress-tooltip {
+            opacity: 1;
+        }
+        /* Custom styles for modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <!-- Logo/Site Title -->
+            <a href="#" class="text-2xl font-bold text-indigo-700">Gurutattva</a>
+            <!-- Navigation Links -->
+            <div class="hidden md:flex space-x-6">
+                <a href="#home" class="text-gray-600 hover:text-indigo-700 transition duration-300">Home</a>
+                <a href="#about" class="text-gray-600 hover:text-indigo-700 transition duration-300">About Us</a>
+                <a href="#offerings" class="text-gray-600 hover:text-indigo-700 transition duration-300">Offerings</a>
+                <a href="#progress" class="text-gray-600 hover:text-indigo-700 transition duration-300">Ashram Progress</a>
+                <a href="#donate" class="text-gray-600 hover:text-indigo-700 transition duration-300">Donate</a>
+                <a href="#blog" class="text-gray-600 hover:text-indigo-700 transition duration-300">Blog</a>
+                <a href="#awards" class="text-gray-600 hover:text-indigo-700 transition duration-300">Awards</a>
+                <a href="#contact" class="text-gray-600 hover:text-indigo-700 transition duration-300">Contact Us</a>
+                <a href="#testimonials" class="text-gray-600 hover:text-indigo-700 transition duration-300">Testimonials</a>
+                <a href="#gallery" class="text-gray-600 hover:text-indigo-700 transition duration-300">Gallery</a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-2">
+            <a href="#home" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Home</a>
+            <a href="#about" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">About Us</a>
+            <a href="#offerings" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Offerings</a>
+            <a href="#progress" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Ashram Progress</a>
+            <a href="#donate" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Donate</a>
+            <a href="#blog" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Blog</a>
+            <a href="#awards" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Awards</a>
+            <a href="#contact" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Contact Us</a>
+            <a href="#testimonials" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Testimonials</a>
+            <a href="#gallery" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Gallery</a>
+        </div>
+    </nav>
+
+    <!-- Main Section (Hero) -->
+    <section id="home" class="hero-section text-white flex items-center justify-center min-h-screen py-20 px-4">
+        <div class="relative z-10 text-center max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 animate-fade-in-down">
+                Embrace the Path of Inner Harmony
+            </h1>
+            <p class="text-lg md:text-xl mb-10 opacity-90 animate-fade-in-up">
+                Our mission is to foster spiritual growth, compassion, and selfless service, guided by the timeless wisdom of Shree Shivkrupanand Swami.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="#offerings" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                    Join Us
+                </a>
+                <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                    Donate Now
+                </button>
+                <a href="#blog" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                    Read Blog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">About Our Divine Journey</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="text-lg leading-relaxed text-gray-700">
+                    <p class="mb-6">
+                        Shree Shivkrupanand Swami's life is a testament to unwavering devotion and selfless service. From a young age, his profound spiritual quest led him through rigorous meditation and ascetic practices, culminating in deep realization and a commitment to uplift humanity. His journey, marked by humility and immense grace, has inspired millions to seek inner peace and contribute positively to the world.
+                    </p>
+                    <p>
+                        The Gurukarya, or Guru's work, is a sprawling endeavor of spiritual and humanitarian initiatives. It encompasses the establishment of meditation centers, ashrams, and various service projects aimed at fostering spiritual awareness, promoting health, and supporting community welfare. Each step of this journey reflects a profound dedication to spreading universal love and harmony.
+                    </p>
+                </div>
+                <div>
+                    <img src="https://placehold.co/600x400/BFDBFE/000000?text=Shree+Swami" alt="Shree Shivkrupanand Swami" class="rounded-xl shadow-lg w-full h-auto object-cover">
+                </div>
+            </div>
+
+            <h3 class="text-3xl font-bold text-center text-indigo-700 mt-16 mb-10">Milestones & Ashrams Established</h3>
+            <div class="relative pl-8 border-l-2 border-indigo-300">
+                <!-- Timeline Item 1 -->
+                <div class="mb-10 flex items-start">
+                    <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="ml-8 bg-indigo-50 p-6 rounded-lg shadow-md w-full">
+                        <p class="text-lg font-semibold text-indigo-700">Early 1980s: The Genesis of Sadhana</p>
+                        <p class="text-gray-600 mt-2">Intense spiritual practices and realization of universal truth, laying the foundation for Gurukarya.</p>
+                    </div>
+                </div>
+                <!-- Timeline Item 2 -->
+                <div class="mb-10 flex items-start">
+                    <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="ml-8 bg-indigo-50 p-6 rounded-lg shadow-md w-full">
+                        <p class="text-lg font-semibold text-indigo-700">Late 1990s: First Ashram & Community Initiatives</p>
+                        <p class="text-gray-600 mt-2">Establishment of the first Ashram, becoming a hub for meditation and charitable activities. Expansion of community welfare programs.</p>
+                    </div>
+                </div>
+                <!-- Timeline Item 3 -->
+                <div class="mb-10 flex items-start">
+                    <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="ml-8 bg-indigo-50 p-6 rounded-lg shadow-md w-full">
+                        <p class="text-lg font-semibold text-indigo-700">2000s Onwards: Global Outreach & New Centers</p>
+                        <p class="text-gray-600 mt-2">Rapid expansion with numerous ashrams and meditation centers established across India and internationally, reaching diverse communities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offerings / Seva Opportunities Section -->
+    <section id="offerings" class="py-16 md:py-24 bg-indigo-50 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Seva Opportunities & Offerings</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                Join us in our mission by participating in various Gurukarya (Guru's work) initiatives. Your contribution, in any form, helps spread spiritual wisdom and serve humanity.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Seva Option 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-laptop-code"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Digital Gurukarya</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Contribute your skills online, managing social media, website content, and virtual events to spread the message globally.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+                <!-- Seva Option 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-place-of-worship"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Ashram Gurukarya</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Offer your selfless service directly at our ashrams, assisting with daily operations, maintenance, and community activities.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+                <!-- Seva Option 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Annadan Seva</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Participate in our food donation drives, ensuring nutritious meals reach those in need, embodying the spirit of compassion.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+                <!-- Seva Option 4 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-hands-helping"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Community Outreach</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Engage in local community projects, welfare programs, and educational initiatives for holistic development.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+                <!-- Seva Option 5 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-leaf"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Environmental Seva</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Contribute to environmental sustainability through tree planting, clean-up drives, and eco-friendly initiatives.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+                <!-- Seva Option 6 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-meditation"></i></div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Meditation Facilitation</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Assist in organizing and facilitating meditation sessions, sharing the profound benefits of spiritual practice.
+                    </p>
+                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ashram Progress Tracker Section -->
+    <section id="progress" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">Ashram Construction Progress</h2>
+            <p class="text-lg text-gray-700 mb-10 text-center max-w-3xl mx-auto">
+                Witness the growth of our spiritual centers. Your support helps bring these sacred spaces to life, extending the reach of Guru's grace.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Ashram Progress Card 1: Mahudi -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Mahudi</h3>
+                    <div class="w-full mb-8">
+                        <div class="progress-bar-container relative group">
+                            <div id="mahudi-progress-fill" class="progress-bar-fill" style="width: 33%;">
+                                <span class="text-sm">33%</span>
+                            </div>
+                            <div class="progress-tooltip">Remaining: ₹ 67 Crore</div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 33%</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <img src="https://placehold.co/400x300/C7D2FE/000000?text=Mahudi+Before" alt="Mahudi Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
+                        <img src="https://placehold.co/400x300/9FA8DA/000000?text=Mahudi+Progress" alt="Mahudi Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        The Mahudi Ashram is envisioned as a sprawling spiritual sanctuary, providing a peaceful abode for seekers and a vibrant center for spiritual activities. Current progress focuses on the main meditation hall and residential blocks.
+                    </p>
+                </div>
+
+                <!-- Ashram Progress Card 2: Ajmer -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Ajmer</h3>
+                    <div class="w-full mb-8">
+                        <div class="progress-bar-container relative group">
+                            <div id="ajmer-progress-fill" class="progress-bar-fill" style="width: 47%;">
+                                <span class="text-sm">47%</span>
+                            </div>
+                            <div class="progress-tooltip">Remaining: ₹ 53 Crore</div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 47%</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <img src="https://placehold.co/400x300/C7D2FE/000000?text=Ajmer+Before" alt="Ajmer Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
+                        <img src="https://placehold.co/400x300/9FA8DA/000000?text=Ajmer+Progress" alt="Ajmer Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        Nestled in a serene landscape, the Ajmer Ashram is designed to be a center for holistic well-being and meditation retreats. The ongoing work includes landscaping and construction of the main temple structure.
+                    </p>
+                </div>
+
+                <!-- Ashram Progress Card 3: Rajkot -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Rajkot</h3>
+                    <div class="w-full mb-8">
+                        <div class="progress-bar-container relative group">
+                            <div id="rajkot-progress-fill" class="progress-bar-fill" style="width: 25%;">
+                                <span class="text-sm">25%</span>
+                            </div>
+                            <div class="progress-tooltip">Remaining: ₹ 75 Crore</div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 25%</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <img src="https://placehold.co/400x300/C7D2FE/000000?text=Rajkot+Before" alt="Rajkot Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
+                        <img src="https://placehold.co/400x300/9FA8DA/000000?text=Rajkot+Progress" alt="Rajkot Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        The Rajkot Ashram will serve as a beacon of spiritual education and community service in the region. Initial phases involve groundwork and development of common facilities.
+                    </p>
+                </div>
+
+                <!-- Ashram Progress Card 4: Varanasi -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Varanasi</h3>
+                    <div class="w-full mb-8">
+                        <div class="progress-bar-container relative group">
+                            <div id="varanasi-progress-fill" class="progress-bar-fill" style="width: 15%;">
+                                <span class="text-sm">15%</span>
+                            </div>
+                            <div class="progress-tooltip">Remaining: ₹ 85 Crore</div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 15%</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <img src="https://placehold.co/400x300/C7D2FE/000000?text=Varanasi+Before" alt="Varanasi Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
+                        <img src="https://placehold.co/400x300/9FA8DA/000000?text=Varanasi+Progress" alt="Varanasi Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        Located in the spiritual heartland, the Varanasi Ashram will embrace ancient traditions and modern amenities to serve spiritual seekers. Early stages focus on land development and foundational work.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section id="donate" class="py-16 md:py-24 bg-purple-50 px-4">
+        <div class="container mx-auto max-w-4xl text-center">
+            <h2 class="text-4xl font-bold text-purple-800 mb-12">Support Our Mission - Donate Today</h2>
+            <p class="text-lg text-gray-700 mb-10">
+                Your generous contributions empower us to continue our spiritual and humanitarian endeavors, fostering peace and well-being globally. Every donation, big or small, makes a significant impact.
+            </p>
+            <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition duration-300 transform hover:scale-105 mb-12">
+                Donate Now
+            </button>
+
+            <!-- Donation Statistics -->
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-12">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-6">Our Impact Through Your Generosity</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-4xl font-bold text-indigo-600 mb-2">₹ 5,23,456</p>
+                        <p class="text-gray-600">Average Monthly Donation Received</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-indigo-600 mb-2">1,500+</p>
+                        <p class="text-gray-600">Lives Touched Monthly</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prominent Donors Section -->
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-6">Notable Contributions</h3>
+                <ul class="list-none space-y-4 text-left">
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-hand-holding-usd text-indigo-500 text-xl"></i>
+                        <p class="text-gray-700"><strong>Agriculture Minister:</strong> Donated ₹ 60 Lakh last month for the Mahudi Ashram's Annadan Seva.</p>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-hand-holding-usd text-indigo-500 text-xl"></i>
+                        <p class="text-gray-700"><strong>Renowned Industrialist, Mr. Sharma:</strong> Contributed ₹ 25 Lakh towards the Rajkot Ashram's educational initiatives.</p>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-hand-holding-usd text-indigo-500 text-xl"></i>
+                        <p class="text-gray-700"><strong>Philanthropist, Smt. Devi:</strong> Provided ₹ 10 Lakh for medical camps organized by our community outreach program.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Insights from the Path: Our Blog</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                Explore a treasury of devotional articles, inspiring Guru stories, profound experiences, and timeless spiritual teachings that illuminate the path to inner peace.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog Post 1 -->
+                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/600x400/9FA8DA/FFFFFF?text=Meditation" alt="The Power of Silent Meditation" class="w-full h-48 object-cover">
+                    <div class="p-6 text-left">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">The Profound Power of Silent Meditation</h3>
+                        <p class="text-gray-700 text-sm mb-4">By Gurusewak | June 10, 2024</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Discover how quieting the mind through meditation can unlock immense inner strength and tranquility in daily life.
+                        </p>
+                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
+                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </article>
+                <!-- Blog Post 2 -->
+                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/600x400/C7D2FE/FFFFFF?text=Guru+Stories" alt="Inspiring Guru Stories" class="w-full h-48 object-cover">
+                    <div class="p-6 text-left">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Tales of Grace: Inspiring Stories of Gurudev</h3>
+                        <p class="text-gray-700 text-sm mb-4">By Seva Team | May 28, 2024</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Dive into heartwarming anecdotes and miraculous experiences that showcase the boundless compassion of Shree Shivkrupanand Swami.
+                        </p>
+                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
+                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </article>
+                <!-- Blog Post 3 -->
+                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/600x400/A78BFA/FFFFFF?text=Teachings" alt="Timeless Spiritual Teachings" class="w-full h-48 object-cover">
+                    <div class="p-6 text-left">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Unveiling Truth: Timeless Teachings for Modern Life</h3>
+                        <p class="text-gray-700 text-sm mb-4">By Disciple | May 15, 2024</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Explore practical wisdom from our Guru that helps navigate challenges and cultivate joy in the contemporary world.
+                        </p>
+                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
+                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <button class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                View All Articles
+            </button>
+        </div>
+    </section>
+
+    <!-- Awards & Recognitions Section -->
+    <section id="awards" class="py-16 md:py-24 bg-indigo-50 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Awards & Recognitions</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                Celebrating the impactful work and profound spiritual contributions of Shree Shivkrupanand Swami, acknowledged by various esteemed organizations.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Award Card 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/300x200/BFDBFE/000000?text=Award+1" alt="Peace Ambassador Award" class="rounded-lg mb-4 w-full h-auto object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Peace Ambassador Award</h3>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> October 20, 2018</p>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> United Nations, New York</p>
+                    <p class="text-gray-700 text-sm mb-4"><strong>Awarded By:</strong> Global Harmony Foundation</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        For his tireless efforts in promoting world peace and interfaith harmony through meditation and spiritual discourse.
+                    </p>
+                </div>
+                <!-- Award Card 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/300x200/C7D2FE/000000?text=Award+2" alt="Spiritual Leadership Certificate" class="rounded-lg mb-4 w-full h-auto object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Spiritual Leadership Certificate</h3>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> March 12, 2020</p>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> World Spiritual Congress, Geneva</p>
+                    <p class="text-gray-700 text-sm mb-4"><strong>Awarded By:</strong> World Council of Religions</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        Recognizing his exceptional guidance and profound influence in fostering spiritual awakening across continents.
+                    </p>
+                </div>
+                <!-- Award Card 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <img src="https://placehold.co/300x200/A78BFA/000000?text=Award+3" alt="Humanitarian Excellence Award" class="rounded-lg mb-4 w-full h-auto object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Humanitarian Excellence Award</h3>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> November 5, 2022</p>
+                    <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> National Philanthropy Summit, New Delhi</p>
+                    <p class="text-gray-700 text-sm mb-4"><strong>Awarded By:</strong> Indian Charitable Trust</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        In recognition of extensive social welfare projects, including Annadan Seva and rural development initiatives.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">Connect With Us</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Send Us a Message</h3>
+                    <form id="contactForm" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 text-sm font-medium mb-2">Your Name</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="John Doe" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Your Email</label>
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="john.doe@example.com" required>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-gray-700 text-sm font-medium mb-2">Subject</label>
+                            <input type="text" id="subject" name="subject" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Inquiry about Gurukarya">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 text-sm font-medium mb-2">Your Message</label>
+                            <textarea id="message" name="message" rows="5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 w-full">
+                            Send Message
+                        </button>
+                    </form>
+                    <div id="form-message" class="mt-4 text-center text-sm font-medium hidden"></div>
+                </div>
+
+                <!-- Contact Details & Map -->
+                <div>
+                    <div class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-6">Our Main Ashram Details</h3>
+                        <div class="space-y-4 text-gray-700">
+                            <p class="flex items-center"><i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i> 123, Spiritual Path, Serenity City, Pin-123456, India</p>
+                            <p class="flex items-center"><i class="fas fa-phone-alt text-indigo-500 mr-3"></i> +91 98765 43210</p>
+                            <p class="flex items-center"><i class="fas fa-envelope text-indigo-500 mr-3"></i> info@gurutattva.org</p>
+                            <p class="flex items-center"><i class="fas fa-user-tie text-indigo-500 mr-3"></i> Ashram Manager: Shri Ramdev Sharma</p>
+                        </div>
+                        <h4 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Follow Us</h4>
+                        <div class="flex space-x-6">
+                            <a href="https://facebook.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-facebook"></i></a>
+                            <a href="https://twitter.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-twitter"></i></a>
+                            <a href="https://instagram.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-instagram"></i></a>
+                            <a href="https://youtube.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-youtube"></i></a>
+                            <a href="https://t.me/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-telegram"></i></a>
+                        </div>
+                    </div>
+                    <div class="rounded-xl shadow-lg overflow-hidden">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4 px-8 pt-8">Our Location on Map</h3>
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3718.7770932204565!2d72.63223077598816!3d21.237279380629737!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3951f28b4d000001%3A0x8f7d9e7b2f6b2f6b!2sGurudev%20Shraddha%20Ashram!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                            width="100%"
+                            height="400"
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            class="rounded-b-xl"
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-16 md:py-24 bg-purple-50 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-purple-800 mb-12">Voices of Devotion & Transformation</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                Hear directly from our devotees and volunteers about their profound experiences with Gurukarya and the transformative power of spiritual practice.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Testimonial Video 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
+                        <!-- Placeholder for embedded YouTube video -->
+                        <iframe
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">"My Journey to Inner Peace"</h3>
+                    <p class="text-gray-700 text-sm mb-4">— Priya Sharma, Devotee</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        Priya shares how Gurudev's teachings helped her overcome anxiety and find profound peace within.
+                    </p>
+                </div>
+                <!-- Testimonial Video 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
+                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
+                        <!-- Placeholder for embedded YouTube video -->
+                        <iframe
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">"Serving with Love: A Volunteer's Story"</h3>
+                    <p class="text-gray-700 text-sm mb-4">— Rajesh Kumar, Volunteer</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        Rajesh speaks about the joy and fulfillment he found through selfless service in the Ashram Gurukarya.
+                    </p>
+                </div>
+            </div>
+            <button class="mt-12 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                View More Testimonials
+            </button>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Moments of Grace: Our Photo Gallery</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                A visual journey through the serene ashrams, vibrant events, and selfless service initiatives that define our mission.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Gallery Item 1 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Ashram+View" alt="Ashram Serenity" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Ashram Serenity</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 2 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Meditation+Gathering" alt="Meditation Gathering" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Meditation Gathering</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 3 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Seva+Activity" alt="Seva Activity" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Annadan Seva</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 4 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/9FA8DA/000000?text=Ashram+Garden" alt="Ashram Garden" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Peaceful Ashram Garden</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 5 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/BFDBFE/000000?text=Festival+Celebration" alt="Festival Celebration" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Festival Celebration</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 6 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Spiritual+Discourse" alt="Spiritual Discourse" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Spiritual Discourse</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 7 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Volunteer+Work" alt="Volunteer Work" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Volunteer Seva</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 8 -->
+                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
+                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Children+Activities" alt="Children Activities" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Children's Spiritual Activities</p>
+                    </div>
+                </div>
+            </div>
+            <button class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                View Full Gallery
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-10 px-4">
+        <div class="container mx-auto text-center">
+            <p class="mb-4">&copy; 2024 GuruTattva. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#home" class="hover:text-white transition duration-300">Home</a>
+                <a href="#about" class="hover:text-white transition duration-300">About Us</a>
+                <a href="#contact" class="hover:text-white transition duration-300">Contact</a>
+                <a href="#blog" class="hover:text-white transition duration-300">Blog</a>
+                <a href="#" class="hover:text-white transition duration-300">Privacy Policy</a>
+            </div>
+            <div class="flex justify-center space-x-6">
+                <a href="https://facebook.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-facebook-f text-xl"></i></a>
+                <a href="https://twitter.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-twitter text-xl"></i></a>
+                <a href="https://instagram.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="https://youtube.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-youtube text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Donation Modal -->
+    <div id="donationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('donationModal')">&times;</span>
+            <h2 class="text-2xl font-bold text-indigo-800 mb-6 text-center">Make a Donation</h2>
+            <form class="space-y-4">
+                <div>
+                    <label for="donor-name" class="block text-gray-700 text-sm font-medium mb-2">Your Name (Optional)</label>
+                    <input type="text" id="donor-name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Anonymous">
+                </div>
+                <div>
+                    <label for="donor-email" class="block text-gray-700 text-sm font-medium mb-2">Your Email</label>
+                    <input type="email" id="donor-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your.email@example.com" required>
+                </div>
+                <div>
+                    <label for="donation-amount" class="block text-gray-700 text-sm font-medium mb-2">Donation Amount (INR)</label>
+                    <input type="number" id="donation-amount" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" min="100" placeholder="Ex: 5000" required>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="anonymous-donation" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                    <label for="anonymous-donation" class="ml-2 block text-sm text-gray-900">Donate Anonymously</label>
+                </div>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 w-full">
+                    Proceed to Payment
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">Thank you for your support!</p>
+        </div>
+    </div>
+
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Form submission handling (client-side only for demo)
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent actual form submission
+            const formMessage = document.getElementById('form-message');
+            formMessage.classList.remove('hidden', 'text-green-600', 'text-red-600');
+            formMessage.classList.add('text-green-600');
+            formMessage.textContent = 'Thank you for your message! We will get back to you shortly.';
+            formMessage.style.display = 'block'; // Make it visible
+            this.reset(); // Clear the form
+
+            // Hide message after a few seconds
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 5000);
+        });
+
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            const donationModal = document.getElementById('donationModal');
+            if (event.target == donationModal) {
+                donationModal.style.display = 'none';
+            }
+        }
+
+        // Animate progress bars on load
+        window.onload = function() {
+            const ashrams = [
+                { id: 'mahudi', percentage: 33 },
+                { id: 'ajmer', percentage: 47 },
+                { id: 'rajkot', percentage: 25 },
+                { id: 'varanasi', percentage: 15 }
+            ];
+
+            ashrams.forEach(ashram => {
+                const fillElement = document.getElementById(`${ashram.id}-progress-fill`);
+                if (fillElement) {
+                    setTimeout(() => {
+                        fillElement.style.width = `${ashram.percentage}%`;
+                    }, 100); // Small delay to ensure CSS transition applies
+                }
+            });
+        };
+
+    </script>
+</body>
+</html>
