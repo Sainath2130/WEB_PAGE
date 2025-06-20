@@ -6,20 +6,42 @@
     <title>Gurutattva - A Path of Transformation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Font - Inter -->
+    <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles */
         body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
+            background-color: #f9fafb; /* Light gray background */
+            color: #374151; /* Darker gray for general text */
         }
+
+        /* Hero Section Styling */
         .hero-section {
-            background-image: url('img.png'); /* Placeholder for a peaceful background image */
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Important for carousel slides */
+        }
+        .hero-carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
-            position: relative;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            will-change: opacity; /* Optimize for animation */
+        }
+        .hero-carousel-slide.active {
+            opacity: 1;
         }
         .hero-section::before {
             content: '';
@@ -28,21 +50,118 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for text readability */
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay for text readability */
             z-index: 0;
         }
+
+        /* Scroll Progress Indicator */
+        #scroll-progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background-color: #EC4899; /* Pink-500 */
+            width: 0%;
+            z-index: 100; /* Adjusted Z-index */
+            transition: width 0.1s linear; /* Smooth progress update */
+        }
+
+        /* Animation Classes */
+        /* Elements fading and sliding up on scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform; /* Optimize for animation */
+        }
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Section headings scale-in animation */
+        .section-heading.animate-on-scroll {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+            will-change: opacity, transform; /* Optimize for animation */
+        }
+        .section-heading.animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Flip Card Styling for Offerings */
+        .flip-card {
+            background-color: transparent;
+            width: 100%; /* Make it responsive */
+            max-width: 350px; /* Max width for larger screens */
+            height: 300px;
+            perspective: 1000px; /* For 3D flip effect */
+            margin: 1rem;
+            display: inline-block; /* To allow flexible arrangement */
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            border-radius: 0.75rem; /* Match parent */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Match parent */
+        }
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .flip-card-front {
+            background-color: #6366F1; /* Indigo-500 */
+            /* Removed background-image, background-size, background-position, background-blend-mode */
+            transition: background-image 0.5s ease-in-out; /* Smooth image change */
+        }
+        .flip-card-back {
+            background-color: #4F46E5; /* Indigo-600 */
+            transform: rotateY(180deg);
+        }
+        .flip-card-front h3, .flip-card-back h3 {
+            font-size: 1.75rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.5rem;
+        }
+        .flip-card-front p, .flip-card-back p {
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.5;
+        }
+
+        /* Progress Bar Styling */
         .progress-bar-container {
             width: 100%;
-            background-color: #e0e0e0;
+            background-color: #e0e0e0; /* Light gray background */
             border-radius: 9999px; /* Fully rounded */
             overflow: hidden;
             position: relative;
-            height: 24px; /* Fixed height for progress bar */
+            height: 24px;
+            margin-bottom: 0.75rem;
         }
         .progress-bar-fill {
             height: 100%;
             background-color: #6366F1; /* Indigo-500 */
-            width: 0%; /* Initial width */
+            width: 0%; /* Initial width for animation */
             transition: width 1s ease-in-out;
             display: flex;
             align-items: center;
@@ -50,6 +169,7 @@
             padding-right: 0.5rem;
             color: white;
             font-weight: bold;
+            font-size: 0.875rem; /* text-sm */
         }
         .progress-tooltip {
             position: absolute;
@@ -65,11 +185,22 @@
             transition: opacity 0.3s ease-in-out;
             pointer-events: none;
             margin-bottom: 0.5rem;
+            font-size: 0.875rem;
         }
         .progress-bar-container:hover .progress-tooltip {
             opacity: 1;
         }
-        /* Custom styles for modal */
+
+        /* Counter-Up Animation for Impact Section */
+        .counter {
+            font-size: 3rem; /* text-4xl */
+            font-weight: bold;
+            color: #6366F1; /* Indigo-600 */
+            line-height: 1; /* Adjust line height to match */
+            display: block; /* Ensure it takes full width */
+        }
+
+        /* Modal Styling */
         .modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
@@ -82,95 +213,205 @@
             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease-out forwards;
         }
         .modal-content {
             background-color: #fefefe;
-            margin: auto;
             padding: 2rem;
             border-radius: 0.75rem;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             position: relative;
+            animation: fadeInScale 0.3s ease-out forwards; /* Modal entry animation */
         }
         .close-button {
             color: #aaa;
             position: absolute;
-            top: 0.5rem;
-            right: 1rem;
-            font-size: 1.5rem;
+            top: 0.75rem;
+            right: 1.25rem;
+            font-size: 1.75rem; /* Larger close button */
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: #000;
-            text-decoration: none;
+        .close-button:hover, .close-button:focus {
+            color: #374151; /* Darker on hover */
+        }
+
+        /* Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background-color: #6366F1;
+            color: white;
+            padding: 1rem 1.25rem; /* Larger padding */
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, transform 0.3s ease-out;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            z-index: 999;
+        }
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Testimonial carousel styles */
+        .testimonial-carousel {
+            position: relative;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        .testimonial-slides-container {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .testimonial-slide {
+            min-width: 100%; /* Each slide takes full width */
+            box-sizing: border-box;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0; /* Prevents shrinking */
+        }
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 9999px; /* Circular buttons */
             cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-button:hover {
+            background-color: rgba(0,0,0,0.7);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .carousel-button.prev {
+            left: 0.5rem;
+        }
+        .carousel-button.next {
+            right: 0.5rem;
+        }
+
+        /* Keyframe Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+        .animate-fade-in-down { animation: fadeInDown 1s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
+
+        /* Side Navigation Styles */
+        #side-navigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px; /* Default width for side nav */
+            background-color: #2D3748; /* Darker gray for sidebar */
+            color: white;
+            z-index: 1001; /* Above overlay */
+            transform: translateX(-100%); /* Hidden by default */
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            overflow-y: auto; /* Enable scrolling for long menus */
+            padding: 1.5rem;
+        }
+
+        #side-navigation.open {
+            transform: translateX(0); /* Slide in */
+        }
+
+        #side-nav-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.6); /* Darker overlay */
+            z-index: 1000; /* Below side nav */
+            display: none; /* Hidden by default */
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50">
 
-    <!-- Navigation Bar -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <!-- Logo/Site Title -->
-            <a href="#" class="text-2xl font-bold text-indigo-700">Gurutattva</a>
-            <!-- Navigation Links -->
-            <div class="hidden md:flex space-x-6">
-                <a href="#home" class="text-gray-600 hover:text-indigo-700 transition duration-300">Home</a>
-                <a href="#about" class="text-gray-600 hover:text-indigo-700 transition duration-300">About Us</a>
-                <a href="#offerings" class="text-gray-600 hover:text-indigo-700 transition duration-300">Offerings</a>
-                <a href="#progress" class="text-gray-600 hover:text-indigo-700 transition duration-300">Ashram Progress</a>
-                <a href="#donate" class="text-gray-600 hover:text-indigo-700 transition duration-300">Donate</a>
-                <a href="#blog" class="text-gray-600 hover:text-indigo-700 transition duration-300">Blog</a>
-                <a href="#awards" class="text-gray-600 hover:text-indigo-700 transition duration-300">Awards</a>
-                <a href="#contact" class="text-gray-600 hover:text-indigo-700 transition duration-300">Contact Us</a>
-                <a href="#testimonials" class="text-gray-600 hover:text-indigo-700 transition duration-300">Testimonials</a>
-                <a href="#gallery" class="text-gray-600 hover:text-indigo-700 transition duration-300">Gallery</a>
-            </div>
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+    <!-- Scroll Progress Indicator -->
+    <div id="scroll-progress-indicator"></div>
+
+    <!-- Simple Header with Menu Toggle -->
+    <header class="py-4 fixed w-full z-50">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <!-- Logo Image on the left -->
+            <img src="main_img.png" alt="Gurutattva Logo" class="h-10">
+
+            <!-- Menu Button on the right -->
+            <button id="mobile-menu-button" class="text-gray-700 focus:outline-none text-2xl" onclick="openSideNav()">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-2">
-            <a href="#home" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Home</a>
-            <a href="#about" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">About Us</a>
-            <a href="#offerings" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Offerings</a>
-            <a href="#progress" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Ashram Progress</a>
-            <a href="#donate" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Donate</a>
-            <a href="#blog" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Blog</a>
-            <a href="#awards" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Awards</a>
-            <a href="#contact" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Contact Us</a>
-            <a href="#testimonials" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Testimonials</a>
-            <a href="#gallery" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Gallery</a>
+    </header>
+
+    <!-- Side Navigation -->
+    <nav id="side-navigation">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">Menu</h2>
+            <button id="close-side-nav-button" class="text-white text-3xl hover:text-gray-300 focus:outline-none" onclick="closeSideNav()">
+                &times;
+            </button>
         </div>
+        <ul class="space-y-4">
+            <li><a href="#home" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Home</a></li>
+            <li><a href="#about" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">About Us</a></li>
+            <li><a href="#seva" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Seva Opportunities</a></li>
+            <li><a href="#ashram-progress" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Ashram Progress</a></li>
+            <li><a href="#donate" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Donate</a></li>
+            <li><a href="#blog" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Blog</a></li>
+            <li><a href="#awards" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Awards & Recognitions</a></li>
+            <li><a href="#gallery" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Gallery</a></li>
+            <li><a href="#testimonials" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Testimonials</a></li>
+            <li><a href="#contact" class="block text-lg font-medium hover:text-purple-300 transition duration-200" onclick="closeSideNav()">Contact Us</a></li>
+        </ul>
     </nav>
 
-    <!-- Main Section (Hero) -->
-    <section id="home" class="hero-section text-white flex items-center justify-center min-h-screen py-20 px-4">
-        <div class="relative z-10 text-center max-w-4xl mx-auto">
-            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 animate-fade-in-down">
-                Embrace the Path of Inner Harmony
+    <!-- Overlay for side navigation -->
+    <div id="side-nav-overlay" onclick="closeSideNav()"></div>
+
+    <!-- Hero Section (Main Section) -->
+    <section id="home" class="hero-section text-white flex items-center justify-center pt-24 pb-12">
+        <!-- Hero Carousel Slides -->
+        <!-- Using placeholder images. For production, replace with optimized images (e.g., JPEG, WebP) -->
+        <div class="hero-carousel-slide active" style="background-image: url('img1.png');"></div>
+        <div class="hero-carousel-slide" style="background-image: url('img2.png');"></div>
+        <div class="hero-carousel-slide" style="background-image: url('img.png');"></div>
+
+        <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
+            <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
+                Gurutattva: Your Path to Inner Harmony
             </h1>
-            <p class="text-lg md:text-xl mb-10 opacity-90 animate-fade-in-up">
-                Our mission is to foster spiritual growth, compassion, and selfless service, guided by the timeless wisdom of Shree Shivkrupanand Swami.
+            <p class="text-lg md:text-xl mb-10 opacity-90 animate-fade-in-up" style="animation-delay: 0.3s;">
+                Discover the timeless wisdom of Shree Shivkrupanand Swami and embark on a transformative journey towards spiritual growth, compassion, and selfless service.
             </p>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <a href="#offerings" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                <a href="#seva" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-fade-in-up" style="animation-delay: 0.6s;">
                     Join Us
                 </a>
-                <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-fade-in-up" style="animation-delay: 0.8s;">
                     Donate Now
                 </button>
-                <a href="#blog" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                <a href="#blog" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-fade-in-up" style="animation-delay: 1.0s;">
                     Read Blog
                 </a>
             </div>
@@ -180,9 +421,9 @@
     <!-- About Us Section -->
     <section id="about" class="py-16 md:py-24 bg-white px-4">
         <div class="container mx-auto max-w-6xl">
-            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">About Our Divine Journey</h2>
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12 section-heading animate-on-scroll">About Our Divine Journey</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div class="text-lg leading-relaxed text-gray-700">
+                <div class="text-lg leading-relaxed text-gray-700 animate-on-scroll">
                     <p class="mb-6">
                         Shree Shivkrupanand Swami's life is a testament to unwavering devotion and selfless service. From a young age, his profound spiritual quest led him through rigorous meditation and ascetic practices, culminating in deep realization and a commitment to uplift humanity. His journey, marked by humility and immense grace, has inspired millions to seek inner peace and contribute positively to the world.
                     </p>
@@ -190,15 +431,15 @@
                         The Gurukarya, or Guru's work, is a sprawling endeavor of spiritual and humanitarian initiatives. It encompasses the establishment of meditation centers, ashrams, and various service projects aimed at fostering spiritual awareness, promoting health, and supporting community welfare. Each step of this journey reflects a profound dedication to spreading universal love and harmony.
                     </p>
                 </div>
-                <div>
-                    <img src="https://placehold.co/600x400/BFDBFE/000000?text=Shree+Swami" alt="Shree Shivkrupanand Swami" class="rounded-xl shadow-lg w-full h-auto object-cover">
+                <div class="animate-on-scroll" style="animation-delay: 0.2s;">
+                    <!-- Placeholder for image of Shree Shivkrupanand Swami -->
+                    <img src="img3.png" alt="Shree Shivkrupanand Swami" class="rounded-xl shadow-lg w-full h-auto object-cover">
                 </div>
             </div>
 
-            <h3 class="text-3xl font-bold text-center text-indigo-700 mt-16 mb-10">Milestones & Ashrams Established</h3>
+            <h3 class="text-3xl font-bold text-center text-indigo-700 mt-16 mb-10 section-heading animate-on-scroll" style="animation-delay: 0.4s;">Milestones & Ashrams Established</h3>
             <div class="relative pl-8 border-l-2 border-indigo-300">
-                <!-- Timeline Item 1 -->
-                <div class="mb-10 flex items-start">
+                <div class="mb-10 flex items-start animate-on-scroll" style="animation-delay: 0.6s;">
                     <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
                         <i class="fas fa-seedling"></i>
                     </div>
@@ -207,8 +448,7 @@
                         <p class="text-gray-600 mt-2">Intense spiritual practices and realization of universal truth, laying the foundation for Gurukarya.</p>
                     </div>
                 </div>
-                <!-- Timeline Item 2 -->
-                <div class="mb-10 flex items-start">
+                <div class="mb-10 flex items-start animate-on-scroll" style="animation-delay: 0.8s;">
                     <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
                         <i class="fas fa-building"></i>
                     </div>
@@ -217,8 +457,7 @@
                         <p class="text-gray-600 mt-2">Establishment of the first Ashram, becoming a hub for meditation and charitable activities. Expansion of community welfare programs.</p>
                     </div>
                 </div>
-                <!-- Timeline Item 3 -->
-                <div class="mb-10 flex items-start">
+                <div class="mb-10 flex items-start animate-on-scroll" style="animation-delay: 1.0s;">
                     <div class="absolute -left-3 mt-1 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
                         <i class="fas fa-globe"></i>
                     </div>
@@ -232,93 +471,161 @@
     </section>
 
     <!-- Offerings / Seva Opportunities Section -->
-    <section id="offerings" class="py-16 md:py-24 bg-indigo-50 px-4">
+    <section id="seva" class="py-16 md:py-24 bg-indigo-50 px-4">
         <div class="container mx-auto max-w-6xl text-center">
-            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Seva Opportunities & Offerings</h2>
-            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12 section-heading animate-on-scroll">Seva Opportunities (Selfless Service)</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
                 Join us in our mission by participating in various Gurukarya (Guru's work) initiatives. Your contribution, in any form, helps spread spiritual wisdom and serve humanity.
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Seva Option 1 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-laptop-code"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Digital Gurukarya</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Contribute your skills online, managing social media, website content, and virtual events to spread the message globally.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+            <div class="flex flex-wrap justify-center gap-8">
+
+                <!-- Prarthna Dham (Prayers) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 0.4s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-praying-hands text-5xl mb-4"></i>
+                            <h3>Prarthna Dham</h3>
+                            <p>Register your prayers for peace and well-being, and let the collective energy support you.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Collective Prayers</h3>
+                            <p>Submit your prayer requests, and our community will unite in prayer for your intentions, fostering positive energy and divine support.</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Seva Option 2 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-place-of-worship"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Ashram Gurukarya</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Offer your selfless service directly at our ashrams, assisting with daily operations, maintenance, and community activities.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+
+                <!-- Naamkaran (Naming Ceremony) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 0.6s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-baby text-5xl mb-4"></i>
+                            <h3>Naamkaran</h3>
+                            <p>A sacred naming ceremony for new beginnings and blessed ventures.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Blessed Beginnings</h3>
+                            <p>Receive divinely blessed names for newborns, new businesses, homes, or professional ventures, ensuring a spiritually harmonious start.</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Seva Option 3 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-hand-holding-heart"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Annadan Seva</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Participate in our food donation drives, ensuring nutritious meals reach those in need, embodying the spirit of compassion.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+
+                <!-- Garbha-Sanskar (Pre-natal Education) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 0.8s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-pregnant text-5xl mb-4"></i>
+                            <h3>Garbha-Sanskar</h3>
+                            <p>Nurture your unborn child's physical and mental well-being from the womb.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Womb Nurturing</h3>
+                            <p>Guidance and practices for expectant parents to nurture their unborn child with positive vibrations, ancient wisdom, and mental well-being.</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Seva Option 4 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-hands-helping"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Community Outreach</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Engage in local community projects, welfare programs, and educational initiatives for holistic development.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+
+                <!-- Samarpan Vivah (Weddings) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 1.0s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-ring text-5xl mb-4"></i>
+                            <h3>Samarpan Vivah</h3>
+                            <p>Experience blissful weddings guided by profound spiritual principles.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Spiritual Unions</h3>
+                            <p>Host your wedding with spiritual blessings, ensuring a harmonious and divinely guided start to your marital journey, blessed by Guru's grace.</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Seva Option 5 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-leaf"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Environmental Seva</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Contribute to environmental sustainability through tree planting, clean-up drives, and eco-friendly initiatives.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+
+                <!-- Guru-Karya (Volunteering) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 1.2s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-hands-helping text-5xl mb-4"></i>
+                            <h3>Guru-Karya</h3>
+                            <p>Engage in selfless service and contribute directly to the Guru's mission.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Be a Sevadhari</h3>
+                            <p>Volunteer your time and skills in various initiatives like digital outreach, ashram support, or event management, helping to spread the message globally.</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Seva Option 6 -->
-                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="text-indigo-600 text-5xl mb-6"><i class="fas fa-meditation"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Meditation Facilitation</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Assist in organizing and facilitating meditation sessions, sharing the profound benefits of spiritual practice.
-                    </p>
-                    <button class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">Learn More</button>
+
+                <!-- Annadaan Seva (Food Donation) -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 1.4s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-utensils text-5xl mb-4"></i>
+                            <h3>Annadaan Seva</h3>
+                            <p>Participate in our food donation drives, ensuring nutritious meals reach those in need.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Nourish with Love</h3>
+                            <p>Contribute to feeding the less fortunate, embodying the spirit of compassion and promoting communal harmony through this vital service.</p>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Environmental Seva -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 1.6s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-leaf text-5xl mb-4"></i>
+                            <h3>Environmental Seva</h3>
+                            <p>Serve nature for a sustainable future and a healthier planet for all.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Protecting Mother Earth</h3>
+                            <p>Join initiatives focused on tree plantation drives, cleanliness campaigns, and promoting eco-conscious living for the well-being of our environment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Special Camps & Retreats -->
+                <div class="flip-card animate-on-scroll" style="animation-delay: 1.8s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-campground text-5xl mb-4"></i>
+                            <h3>Special Camps & Retreats</h3>
+                            <p>Immerse yourself in intensive meditation camps for profound transformation.</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Deepen Your Practice</h3>
+                            <p>Participate in unique spiritual camps and retreats designed to deepen your meditation practice and accelerate your inner spiritual transformation.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
     <!-- Ashram Progress Tracker Section -->
-    <section id="progress" class="py-16 md:py-24 bg-white px-4">
+    <section id="ashram-progress" class="py-16 md:py-24 bg-white px-4">
         <div class="container mx-auto max-w-6xl">
-            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">Ashram Construction Progress</h2>
-            <p class="text-lg text-gray-700 mb-10 text-center max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12 section-heading animate-on-scroll">Ashram Construction Progress</h2>
+            <p class="text-lg text-gray-700 mb-10 text-center max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
                 Witness the growth of our spiritual centers. Your support helps bring these sacred spaces to life, extending the reach of Guru's grace.
             </p>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <!-- Ashram Progress Card 1: Mahudi -->
-                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                <!-- Mahudi Ashram -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-on-scroll" style="animation-delay: 0.4s;">
                     <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Mahudi</h3>
                     <div class="w-full mb-8">
                         <div class="progress-bar-container relative group">
-                            <div id="mahudi-progress-fill" class="progress-bar-fill" style="width: 33%;">
-                                <span class="text-sm">33%</span>
+                            <div id="mahudi-progress-fill" class="progress-bar-fill" data-progress="33" data-remaining-amount="670000000">
+                                <span class="text-sm">0%</span>
                             </div>
                             <div class="progress-tooltip">Remaining: ₹ 67 Crore</div>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 33%</p>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: <span id="mahudi-progress-text">0%</span></p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <!-- Placeholder images for Before/Progress -->
                         <img src="https://placehold.co/400x300/C7D2FE/000000?text=Mahudi+Before" alt="Mahudi Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
                         <img src="https://placehold.co/400x300/9FA8DA/000000?text=Mahudi+Progress" alt="Mahudi Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
                     </div>
@@ -327,19 +634,20 @@
                     </p>
                 </div>
 
-                <!-- Ashram Progress Card 2: Ajmer -->
-                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                <!-- Ajmer Ashram -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-on-scroll" style="animation-delay: 0.6s;">
                     <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Ajmer</h3>
                     <div class="w-full mb-8">
                         <div class="progress-bar-container relative group">
-                            <div id="ajmer-progress-fill" class="progress-bar-fill" style="width: 47%;">
-                                <span class="text-sm">47%</span>
+                            <div id="ajmer-progress-fill" class="progress-bar-fill" data-progress="47" data-remaining-amount="530000000">
+                                <span class="text-sm">0%</span>
                             </div>
                             <div class="progress-tooltip">Remaining: ₹ 53 Crore</div>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 47%</p>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: <span id="ajmer-progress-text">0%</span></p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <!-- Placeholder images for Before/Progress -->
                         <img src="https://placehold.co/400x300/C7D2FE/000000?text=Ajmer+Before" alt="Ajmer Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
                         <img src="https://placehold.co/400x300/9FA8DA/000000?text=Ajmer+Progress" alt="Ajmer Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
                     </div>
@@ -348,19 +656,20 @@
                     </p>
                 </div>
 
-                <!-- Ashram Progress Card 3: Rajkot -->
-                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                <!-- Rajkot Ashram -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-on-scroll" style="animation-delay: 0.8s;">
                     <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Rajkot</h3>
                     <div class="w-full mb-8">
                         <div class="progress-bar-container relative group">
-                            <div id="rajkot-progress-fill" class="progress-bar-fill" style="width: 25%;">
-                                <span class="text-sm">25%</span>
+                            <div id="rajkot-progress-fill" class="progress-bar-fill" data-progress="25" data-remaining-amount="750000000">
+                                <span class="text-sm">0%</span>
                             </div>
                             <div class="progress-tooltip">Remaining: ₹ 75 Crore</div>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 25%</p>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: <span id="rajkot-progress-text">0%</span></p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <!-- Placeholder images for Before/Progress -->
                         <img src="https://placehold.co/400x300/C7D2FE/000000?text=Rajkot+Before" alt="Rajkot Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
                         <img src="https://placehold.co/400x300/9FA8DA/000000?text=Rajkot+Progress" alt="Rajkot Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
                     </div>
@@ -369,19 +678,20 @@
                     </p>
                 </div>
 
-                <!-- Ashram Progress Card 4: Varanasi -->
-                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center">
+                <!-- Varanasi Ashram -->
+                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-on-scroll" style="animation-delay: 1.0s;">
                     <h3 class="text-3xl font-semibold text-indigo-700 mb-6">Shree Gurushaktidham Ashram, Varanasi</h3>
                     <div class="w-full mb-8">
                         <div class="progress-bar-container relative group">
-                            <div id="varanasi-progress-fill" class="progress-bar-fill" style="width: 15%;">
-                                <span class="text-sm">15%</span>
+                            <div id="varanasi-progress-fill" class="progress-bar-fill" data-progress="15" data-remaining-amount="850000000">
+                                <span class="text-sm">0%</span>
                             </div>
                             <div class="progress-tooltip">Remaining: ₹ 85 Crore</div>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">Construction Completed: 15%</p>
+                        <p class="text-sm text-gray-600 mt-2">Construction Completed: <span id="varanasi-progress-text">0%</span></p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+                        <!-- Placeholder images for Before/Progress -->
                         <img src="https://placehold.co/400x300/C7D2FE/000000?text=Varanasi+Before" alt="Varanasi Ashram Before" class="rounded-lg shadow-md w-full h-auto object-cover">
                         <img src="https://placehold.co/400x300/9FA8DA/000000?text=Varanasi+Progress" alt="Varanasi Ashram Progress" class="rounded-lg shadow-md w-full h-auto object-cover">
                     </div>
@@ -396,31 +706,29 @@
     <!-- Donation Section -->
     <section id="donate" class="py-16 md:py-24 bg-purple-50 px-4">
         <div class="container mx-auto max-w-4xl text-center">
-            <h2 class="text-4xl font-bold text-purple-800 mb-12">Support Our Mission - Donate Today</h2>
-            <p class="text-lg text-gray-700 mb-10">
+            <h2 class="text-4xl font-bold text-purple-800 mb-12 section-heading animate-on-scroll">Support Our Mission - Donate Today</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
                 Your generous contributions empower us to continue our spiritual and humanitarian endeavors, fostering peace and well-being globally. Every donation, big or small, makes a significant impact.
             </p>
-            <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition duration-300 transform hover:scale-105 mb-12">
+            <button onclick="openModal('donationModal')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition duration-300 transform hover:scale-105 mb-12 animate-on-scroll" style="animation-delay: 0.4s;">
                 Donate Now
             </button>
 
-            <!-- Donation Statistics -->
-            <div class="bg-white p-8 rounded-xl shadow-lg mb-12">
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-12 animate-on-scroll" style="animation-delay: 0.6s;">
                 <h3 class="text-2xl font-semibold text-gray-900 mb-6">Our Impact Through Your Generosity</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <p class="text-4xl font-bold text-indigo-600 mb-2">₹ 5,23,456</p>
-                        <p class="text-gray-600">Average Monthly Donation Received</p>
+                        <p class="counter text-4xl font-bold text-indigo-600 mb-2" data-target="523456">0</p>
+                        <p class="text-gray-600">Average Monthly Donation Received (INR)</p>
                     </div>
                     <div>
-                        <p class="text-4xl font-bold text-indigo-600 mb-2">1,500+</p>
+                        <p class="counter text-4xl font-bold text-indigo-600 mb-2" data-target="1500">0</p>
                         <p class="text-gray-600">Lives Touched Monthly</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Prominent Donors Section -->
-            <div class="bg-white p-8 rounded-xl shadow-lg">
+            <div class="bg-white p-8 rounded-xl shadow-lg animate-on-scroll" style="animation-delay: 0.8s;">
                 <h3 class="text-2xl font-semibold text-gray-900 mb-6">Notable Contributions</h3>
                 <ul class="list-none space-y-4 text-left">
                     <li class="flex items-center space-x-3">
@@ -443,56 +751,15 @@
     <!-- Blog Section -->
     <section id="blog" class="py-16 md:py-24 bg-white px-4">
         <div class="container mx-auto max-w-6xl text-center">
-            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Insights from the Path: Our Blog</h2>
-            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12 section-heading animate-on-scroll">Insights from the Path: Our Blog</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
                 Explore a treasury of devotional articles, inspiring Guru stories, profound experiences, and timeless spiritual teachings that illuminate the path to inner peace.
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Blog Post 1 -->
-                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/600x400/9FA8DA/FFFFFF?text=Meditation" alt="The Power of Silent Meditation" class="w-full h-48 object-cover">
-                    <div class="p-6 text-left">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">The Profound Power of Silent Meditation</h3>
-                        <p class="text-gray-700 text-sm mb-4">By Gurusewak | June 10, 2024</p>
-                        <p class="text-gray-700 leading-relaxed mb-4">
-                            Discover how quieting the mind through meditation can unlock immense inner strength and tranquility in daily life.
-                        </p>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
-                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
-                        </a>
-                    </div>
-                </article>
-                <!-- Blog Post 2 -->
-                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/600x400/C7D2FE/FFFFFF?text=Guru+Stories" alt="Inspiring Guru Stories" class="w-full h-48 object-cover">
-                    <div class="p-6 text-left">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Tales of Grace: Inspiring Stories of Gurudev</h3>
-                        <p class="text-gray-700 text-sm mb-4">By Seva Team | May 28, 2024</p>
-                        <p class="text-gray-700 leading-relaxed mb-4">
-                            Dive into heartwarming anecdotes and miraculous experiences that showcase the boundless compassion of Shree Shivkrupanand Swami.
-                        </p>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
-                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
-                        </a>
-                    </div>
-                </article>
-                <!-- Blog Post 3 -->
-                <article class="bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/600x400/A78BFA/FFFFFF?text=Teachings" alt="Timeless Spiritual Teachings" class="w-full h-48 object-cover">
-                    <div class="p-6 text-left">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Unveiling Truth: Timeless Teachings for Modern Life</h3>
-                        <p class="text-gray-700 text-sm mb-4">By Disciple | May 15, 2024</p>
-                        <p class="text-gray-700 leading-relaxed mb-4">
-                            Explore practical wisdom from our Guru that helps navigate challenges and cultivate joy in the contemporary world.
-                        </p>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
-                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
-                        </a>
-                    </div>
-                </article>
+            <div id="blog-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog posts will be loaded here by JavaScript -->
             </div>
-            <button class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                View All Articles
+            <button id="load-more-blog" class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 1.0s;">
+                View More Articles
             </button>
         </div>
     </section>
@@ -500,14 +767,13 @@
     <!-- Awards & Recognitions Section -->
     <section id="awards" class="py-16 md:py-24 bg-indigo-50 px-4">
         <div class="container mx-auto max-w-6xl text-center">
-            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Awards & Recognitions</h2>
-            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12 section-heading animate-on-scroll">Awards & Recognitions</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
                 Celebrating the impactful work and profound spiritual contributions of Shree Shivkrupanand Swami, acknowledged by various esteemed organizations.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Award Card 1 -->
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/300x200/BFDBFE/000000?text=Award+1" alt="Peace Ambassador Award" class="rounded-lg mb-4 w-full h-auto object-cover">
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2 animate-on-scroll" style="animation-delay: 0.4s;">
+                    <img src="https://placehold.co/300x200/BFDBFE/000000?text=Peace+Ambassador+Award" alt="Peace Ambassador Award" class="rounded-lg mb-4 w-full h-auto object-cover">
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">Peace Ambassador Award</h3>
                     <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> October 20, 2018</p>
                     <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> United Nations, New York</p>
@@ -516,9 +782,8 @@
                         For his tireless efforts in promoting world peace and interfaith harmony through meditation and spiritual discourse.
                     </p>
                 </div>
-                <!-- Award Card 2 -->
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/300x200/C7D2FE/000000?text=Award+2" alt="Spiritual Leadership Certificate" class="rounded-lg mb-4 w-full h-auto object-cover">
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2 animate-on-scroll" style="animation-delay: 0.6s;">
+                    <img src="https://placehold.co/300x200/C7D2FE/000000?text=Spiritual+Leadership+Cert" alt="Spiritual Leadership Certificate" class="rounded-lg mb-4 w-full h-auto object-cover">
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">Spiritual Leadership Certificate</h3>
                     <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> March 12, 2020</p>
                     <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> World Spiritual Congress, Geneva</p>
@@ -527,12 +792,11 @@
                         Recognizing his exceptional guidance and profound influence in fostering spiritual awakening across continents.
                     </p>
                 </div>
-                <!-- Award Card 3 -->
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <img src="https://placehold.co/300x200/A78BFA/000000?text=Award+3" alt="Humanitarian Excellence Award" class="rounded-lg mb-4 w-full h-auto object-cover">
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-xl transition duration-300 transform hover:-translate-y-2 animate-on-scroll" style="animation-delay: 0.8s;">
+                    <img src="https://placehold.co/300x200/A78BFA/000000?text=Humanitarian+Excellence" alt="Humanitarian Excellence Award" class="rounded-lg mb-4 w-full h-auto object-cover">
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">Humanitarian Excellence Award</h3>
                     <p class="text-gray-700 text-sm mb-2"><strong>Date:</strong> November 5, 2022</p>
-                    <p class="text-gray-700 text-sm mb-2"><strong>Location:</strong> National Philanthropy Summit, New Delhi</p>
+                    <p class="text-700 text-sm mb-2"><strong>Location:</strong> National Philanthropy Summit, New Delhi</p>
                     <p class="text-gray-700 text-sm mb-4"><strong>Awarded By:</strong> Indian Charitable Trust</p>
                     <p class="text-gray-700 leading-relaxed">
                         In recognition of extensive social welfare projects, including Annadan Seva and rural development initiatives.
@@ -542,13 +806,133 @@
         </div>
     </section>
 
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-16 md:py-24 bg-white px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-12 section-heading animate-on-scroll">Moments of Grace: Our Photo Gallery</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
+                A visual journey through the serene ashrams, vibrant events, and selfless service initiatives that define our mission.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.4s;">
+                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Ashram+View" alt="Ashram Serenity" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Ashram Serenity</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.5s;">
+                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Meditation+Gathering" alt="Meditation Gathering" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Meditation Gathering</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.6s;">
+                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Seva+Activity" alt="Seva Activity" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Annadan Seva</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.7s;">
+                    <img src="https://placehold.co/500x350/9FA8DA/000000?text=Ashram+Garden" alt="Ashram Garden" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Peaceful Ashram Garden</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.8s;">
+                    <img src="https://placehold.co/500x350/BFDBFE/000000?text=Festival+Celebration" alt="Festival Celebration" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Festival Celebration</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.9s;">
+                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Spiritual+Discourse" alt="Spiritual Discourse" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Spiritual Discourse</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 1.0s;">
+                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Volunteer+Work" alt="Volunteer Work" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Volunteer Seva</p>
+                    </div>
+                </div>
+                <div class="relative group rounded-xl overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 1.1s;">
+                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Children+Activities" alt="Children Activities" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <p class="text-white text-lg font-semibold">Children's Spiritual Activities</p>
+                    </div>
+                </div>
+            </div>
+            <button class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 1.2s;">
+                View Full Gallery
+            </button>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-16 md:py-24 bg-purple-50 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h2 class="text-4xl font-bold text-purple-800 mb-12 section-heading animate-on-scroll">Voices of Devotion & Transformation</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.2s;">
+                Hear directly from our devotees and volunteers about their profound experiences with Gurukarya and the transformative power of spiritual practice.
+            </p>
+            <div class="testimonial-carousel relative max-w-3xl mx-auto animate-on-scroll" style="animation-delay: 0.4s;">
+                <div class="testimonial-slides-container flex">
+                    <!-- Testimonial Slide 1 -->
+                    <div class="testimonial-slide flex-shrink-0">
+                        <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
+                            <!-- Placeholder YouTube Embed. Replace 'dQw4w9WgXcQ' with actual video IDs -->
+                            <iframe
+                                class="absolute top-0 left-0 w-full h-full"
+                                src=""
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">"My Journey to Inner Peace"</h3>
+                        <p class="text-gray-700 text-sm mb-4">— Priya Sharma, Devotee</p>
+                        <p class="text-gray-700 leading-relaxed">
+                            Priya shares how Gurudev's teachings helped her overcome anxiety and find profound peace within.
+                        </p>
+                    </div>
+
+                    <!-- Testimonial Slide 2 -->
+                    <div class="testimonial-slide flex-shrink-0">
+                        <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
+                            <!-- Placeholder YouTube Embed. Replace 'another-video-id' with actual video IDs -->
+                            <iframe
+                                class="absolute top-0 left-0 w-full h-full"
+                                src=""
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">"Serving with Love: A Volunteer's Story"</h3>
+                        <p class="text-gray-700 text-sm mb-4">— Rajesh Kumar, Volunteer</p>
+                        <p class="text-gray-700 leading-relaxed">
+                            Rajesh speaks about the joy and fulfillment he found through selfless service in the Ashram Gurukarya.
+                        </p>
+                    </div>
+
+                   
+                </div>
+                <button class="carousel-button prev" onclick="moveTestimonialSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-button next" onclick="moveTestimonialSlide(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <button class="mt-12 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 animate-on-scroll" style="animation-delay: 0.8s;">
+                View More Testimonials
+            </button>
+        </div>
+    </section>
+
     <!-- Contact Us Section -->
-    <section id="contact" class="py-16 md:py-24 bg-white px-4">
+    <section id="contact" class="py-16 md:py-24 bg-gray-50 px-4">
         <div class="container mx-auto max-w-6xl">
-            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12">Connect With Us</h2>
+            <h2 class="text-4xl font-bold text-center text-indigo-800 mb-12 section-heading animate-on-scroll">Connect With Us</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <!-- Contact Form -->
-                <div class="bg-indigo-50 p-8 rounded-xl shadow-lg">
+                <div class="bg-white p-8 rounded-xl shadow-lg animate-on-scroll" style="animation-delay: 0.2s;">
                     <h3 class="text-2xl font-semibold text-gray-900 mb-6">Send Us a Message</h3>
                     <form id="contactForm" class="space-y-6">
                         <div>
@@ -574,9 +958,8 @@
                     <div id="form-message" class="mt-4 text-center text-sm font-medium hidden"></div>
                 </div>
 
-                <!-- Contact Details & Map -->
                 <div>
-                    <div class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-8">
+                    <div class="bg-white p-8 rounded-xl shadow-lg mb-8 animate-on-scroll" style="animation-delay: 0.4s;">
                         <h3 class="text-2xl font-semibold text-gray-900 mb-6">Our Main Ashram Details</h3>
                         <div class="space-y-4 text-gray-700">
                             <p class="flex items-center"><i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i> 123, Spiritual Path, Serenity City, Pin-123456, India</p>
@@ -586,17 +969,19 @@
                         </div>
                         <h4 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Follow Us</h4>
                         <div class="flex space-x-6">
+                            <!-- Replace href with actual social media links -->
                             <a href="https://facebook.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-facebook"></i></a>
                             <a href="https://twitter.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-twitter"></i></a>
                             <a href="https://instagram.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-instagram"></i></a>
-                            <a href="https://youtube.com/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-youtube"></i></a>
+                            <a href="https://youtube.com/" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-youtube"></i></a>
                             <a href="https://t.me/gurutattva" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-3xl transition duration-300"><i class="fab fa-telegram"></i></a>
                         </div>
                     </div>
-                    <div class="rounded-xl shadow-lg overflow-hidden">
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-4 px-8 pt-8">Our Location on Map</h3>
+                    <div class="rounded-xl shadow-lg overflow-hidden animate-on-scroll" style="animation-delay: 0.6s;">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4 px-8 pt-8 text-left">Our Location on Map</h3>
+                        <!-- Google Maps Embed: Placeholder for Ahmedabad, India -->
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3718.7770932204565!2d72.63223077598816!3d21.237279380629737!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3951f28b4d000001%3A0x8f7d9e7b2f6b2f6b!2sGurudev%20Shraddha%20Ashram!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1572.234679092769!2d72.58572120000001!3d23.0257321!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e84f6d4d12bbd%3A0x62a14e9f90f6b4b4!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sus!4v1718706346747!5m2!1sen!2sus"
                             width="100%"
                             height="400"
                             style="border:0;"
@@ -611,133 +996,12 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="py-16 md:py-24 bg-purple-50 px-4">
-        <div class="container mx-auto max-w-6xl text-center">
-            <h2 class="text-4xl font-bold text-purple-800 mb-12">Voices of Devotion & Transformation</h2>
-            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
-                Hear directly from our devotees and volunteers about their profound experiences with Gurukarya and the transformative power of spiritual practice.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Testimonial Video 1 -->
-                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
-                        <!-- Placeholder for embedded YouTube video -->
-                        <iframe
-                            class="absolute top-0 left-0 w-full h-full"
-                            src=""
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                        ></iframe>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">"My Journey to Inner Peace"</h3>
-                    <p class="text-gray-700 text-sm mb-4">— Priya Sharma, Devotee</p>
-                    <p class="text-gray-700 leading-relaxed">
-                        Priya shares how Gurudev's teachings helped her overcome anxiety and find profound peace within.
-                    </p>
-                </div>
-                <!-- Testimonial Video 2 -->
-                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2">
-                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg mb-4">
-                        <!-- Placeholder for embedded YouTube video -->
-                        <iframe
-                            class="absolute top-0 left-0 w-full h-full"
-                            src=""
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                        ></iframe>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">"Serving with Love: A Volunteer's Story"</h3>
-                    <p class="text-gray-700 text-sm mb-4">— Rajesh Kumar, Volunteer</p>
-                    <p class="text-gray-700 leading-relaxed">
-                        Rajesh speaks about the joy and fulfillment he found through selfless service in the Ashram Gurukarya.
-                    </p>
-                </div>
-            </div>
-            <button class="mt-12 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                View More Testimonials
-            </button>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section id="gallery" class="py-16 md:py-24 bg-white px-4">
-        <div class="container mx-auto max-w-6xl text-center">
-            <h2 class="text-4xl font-bold text-indigo-800 mb-12">Moments of Grace: Our Photo Gallery</h2>
-            <p class="text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
-                A visual journey through the serene ashrams, vibrant events, and selfless service initiatives that define our mission.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Gallery Item 1 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Ashram+View" alt="Ashram Serenity" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Ashram Serenity</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 2 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Meditation+Gathering" alt="Meditation Gathering" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Meditation Gathering</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 3 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Seva+Activity" alt="Seva Activity" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Annadan Seva</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 4 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/9FA8DA/000000?text=Ashram+Garden" alt="Ashram Garden" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Peaceful Ashram Garden</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 5 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/BFDBFE/000000?text=Festival+Celebration" alt="Festival Celebration" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Festival Celebration</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 6 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/E0E7FF/000000?text=Spiritual+Discourse" alt="Spiritual Discourse" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Spiritual Discourse</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 7 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/C7D2FE/000000?text=Volunteer+Work" alt="Volunteer Work" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Volunteer Seva</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 8 -->
-                <div class="relative group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300">
-                    <img src="https://placehold.co/500x350/A78BFA/000000?text=Children+Activities" alt="Children Activities" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p class="text-white text-lg font-semibold">Children's Spiritual Activities</p>
-                    </div>
-                </div>
-            </div>
-            <button class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                View Full Gallery
-            </button>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-10 px-4">
         <div class="container mx-auto text-center">
-            <p class="mb-4">&copy; 2024 GuruTattva. All rights reserved.</p>
+            <p class="mb-4">© 2024 Gurutattva. All rights reserved.</p>
             <div class="flex justify-center space-x-6 mb-4">
+                <!-- Footer navigation links -->
                 <a href="#home" class="hover:text-white transition duration-300">Home</a>
                 <a href="#about" class="hover:text-white transition duration-300">About Us</a>
                 <a href="#contact" class="hover:text-white transition duration-300">Contact</a>
@@ -745,10 +1009,11 @@
                 <a href="#" class="hover:text-white transition duration-300">Privacy Policy</a>
             </div>
             <div class="flex justify-center space-x-6">
+                <!-- Footer Social media icons -->
                 <a href="https://facebook.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-facebook-f text-xl"></i></a>
                 <a href="https://twitter.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-twitter text-xl"></i></a>
                 <a href="https://instagram.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-instagram text-xl"></i></a>
-                <a href="https://youtube.com/gurutattva" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-youtube text-xl"></i></a>
+                <a href="https://youtube.com/" target="_blank" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-youtube text-xl"></i></a>
             </div>
         </div>
     </footer>
@@ -756,7 +1021,7 @@
     <!-- Donation Modal -->
     <div id="donationModal" class="modal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeModal('donationModal')">&times;</span>
+            <span class="close-button" onclick="closeModal('donationModal')">×</span>
             <h2 class="text-2xl font-bold text-indigo-800 mb-6 text-center">Make a Donation</h2>
             <form class="space-y-4">
                 <div>
@@ -783,30 +1048,23 @@
         </div>
     </div>
 
+    <!-- Back to Top Button -->
+    <button id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <script>
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Mobile menu toggle
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Close mobile menu when a link is clicked
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
             });
         });
 
@@ -814,8 +1072,8 @@
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent actual form submission
             const formMessage = document.getElementById('form-message');
-            formMessage.classList.remove('hidden', 'text-green-600', 'text-red-600');
-            formMessage.classList.add('text-green-600');
+            formMessage.classList.remove('hidden', 'text-green-600', 'text-red-600'); // Clear previous states
+            formMessage.classList.add('text-green-600'); // Add success color
             formMessage.textContent = 'Thank you for your message! We will get back to you shortly.';
             formMessage.style.display = 'block'; // Make it visible
             this.reset(); // Clear the form
@@ -838,30 +1096,347 @@
         // Close modal if user clicks outside of it
         window.onclick = function(event) {
             const donationModal = document.getElementById('donationModal');
+            const sideNavigation = document.getElementById('side-navigation');
+            const sideNavOverlay = document.getElementById('side-nav-overlay');
+
             if (event.target == donationModal) {
                 donationModal.style.display = 'none';
             }
+            // Close side nav if click outside and it's open
+            if (sideNavigation.classList.contains('open') && event.target == sideNavOverlay) {
+                closeSideNav();
+            }
         }
 
-        // Animate progress bars on load
-        window.onload = function() {
-            const ashrams = [
-                { id: 'mahudi', percentage: 33 },
-                { id: 'ajmer', percentage: 47 },
-                { id: 'rajkot', percentage: 25 },
-                { id: 'varanasi', percentage: 15 }
-            ];
+        // Side Navigation functionality
+        const sideNavigation = document.getElementById('side-navigation');
+        const sideNavOverlay = document.getElementById('side-nav-overlay');
 
-            ashrams.forEach(ashram => {
-                const fillElement = document.getElementById(`${ashram.id}-progress-fill`);
-                if (fillElement) {
-                    setTimeout(() => {
+        function openSideNav() {
+            sideNavigation.classList.add('open');
+            sideNavOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when side nav is open
+        }
+
+        function closeSideNav() {
+            sideNavigation.classList.remove('open');
+            sideNavOverlay.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Ashram Progress Bar Animation and Text Update
+        // Data for ashram progress, including remaining amounts in Rupees
+        const ashramProgressData = [
+            { id: 'mahudi', percentage: 33, remaining: 670000000 }, // 67 Crore
+            { id: 'ajmer', percentage: 47, remaining: 530000000 }, // 53 Crore
+            { id: 'rajkot', percentage: 25, remaining: 750000000 }, // 75 Crore
+            { id: 'varanasi', percentage: 15, remaining: 850000000 }  // 85 Crore
+        ];
+
+        function formatCurrency(amount) {
+            // Function to format numbers into Indian Rupees Lakh/Crore
+            if (amount >= 10000000) { // Crore
+                return `₹ ${(amount / 10000000).toLocaleString('en-IN')} Crore`;
+            } else if (amount >= 100000) { // Lakh
+                return `₹ ${(amount / 100000).toLocaleString('en-IN')}`;
+            } else {
+                return `₹ ${amount.toLocaleString('en-IN')}`;
+            }
+        }
+
+        function animateProgressBars(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.classList.contains('progress-bar-fill')) {
+                    const ashramId = entry.target.id.replace('-progress-fill', '');
+                    const ashram = ashramProgressData.find(a => a.id === ashramId);
+                    if (ashram) {
+                        const fillElement = entry.target;
+                        const textElement = document.getElementById(`${ashram.id}-progress-text`);
+                        const tooltipElement = fillElement.nextElementSibling; // Get the next sibling for the tooltip
+
                         fillElement.style.width = `${ashram.percentage}%`;
-                    }, 100); // Small delay to ensure CSS transition applies
+                        fillElement.querySelector('span').textContent = `${ashram.percentage}%`;
+                        textElement.textContent = `${ashram.percentage}%`;
+                        tooltipElement.textContent = `Remaining: ${formatCurrency(ashram.remaining)}`;
+                    }
+                    observer.unobserve(entry.target); // Stop observing once animated
                 }
             });
-        };
+        }
 
+        // Counter-Up Animation for Impact Section
+        function animateCounter(obj, target) {
+            let current = 0;
+            const duration = 2000; // 2 seconds
+            const stepTime = 10; // ms
+            const increment = target / (duration / stepTime);
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    clearInterval(timer);
+                    obj.textContent = target.toLocaleString('en-IN'); // Format with Indian locale commas
+                } else {
+                    obj.textContent = Math.floor(current).toLocaleString('en-IN');
+                }
+            }, stepTime);
+        }
+
+        // Intersection Observer for Scroll Animations (main observer)
+        document.addEventListener('DOMContentLoaded', () => {
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+            const sectionHeadings = document.querySelectorAll('.section-heading.animate-on-scroll');
+            const counters = document.querySelectorAll('.counter');
+            const progressBarFills = document.querySelectorAll('.progress-bar-fill'); // Select specific progress fills
+
+            const observerOptions = {
+                root: null, // relative to the viewport
+                rootMargin: '0px',
+                threshold: 0.1 // Trigger when 10% of the item is visible
+            };
+
+            const primaryObserverCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // For static elements, unobserve after first animation
+                        if (!entry.target.classList.contains('do-not-unobserve')) { // Add this class to elements that need continuous observation if any
+                           observer.unobserve(entry.target);
+                        }
+                    }
+                });
+            };
+
+            const counterObserverCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = parseInt(entry.target.getAttribute('data-target'));
+                        animateCounter(entry.target, target);
+                        observer.unobserve(entry.target); // Stop observing once animated
+                    }
+                });
+            };
+
+            const progressBarObserver = new IntersectionObserver(animateProgressBars, {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5 // Trigger when 50% of the progress bar is visible
+            });
+
+
+            const primaryObserver = new IntersectionObserver(primaryObserverCallback, observerOptions);
+            const counterObserver = new IntersectionObserver(counterObserverCallback, observerOptions);
+
+            animateElements.forEach(element => primaryObserver.observe(element));
+            sectionHeadings.forEach(heading => primaryObserver.observe(heading));
+            counters.forEach(counter => counterObserver.observe(counter));
+            progressBarFills.forEach(fill => progressBarObserver.observe(fill));
+        });
+
+
+        // Back to Top Button Functionality
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) { // Show button after scrolling 300px down
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Dynamic Blog Post Loading (Simulation)
+        const allBlogPostsData = [
+            {
+                image: 'https://placehold.co/600x400/9FA8DA/FFFFFF?text=Meditation',
+                title: 'The Profound Power of Silent Meditation',
+                author: 'Gurusewak',
+                date: 'June 10, 2024',
+                description: 'Discover how quieting the mind through meditation can unlock immense inner strength and tranquility in daily life.',
+                link: '#'
+            },
+            {
+                image: 'https://placehold.co/600x400/C7D2FE/FFFFFF?text=Guru+Stories',
+                title: 'Tales of Grace: Inspiring Stories of Gurudev',
+                author: 'Seva Team',
+                date: 'May 28, 2024',
+                description: 'Dive into heartwarming anecdotes and miraculous experiences that showcase the boundless compassion of Shree Shivkrupanand Swami.',
+                link: '#'
+            },
+            {
+                image: 'https://placehold.co/600x400/A78BFA/FFFFFF?text=Teachings',
+                title: 'Unveiling Truth: Timeless Teachings for Modern Life',
+                author: 'Disciple',
+                date: 'May 15, 2024',
+                description: 'Explore practical wisdom from our Guru that helps navigate challenges and cultivate joy in the contemporary world.',
+                link: '#'
+            },
+            {
+                image: 'https://placehold.co/600x400/BFDBFE/FFFFFF?text=Devotion',
+                title: 'Path of Devotion: A Personal Reflection',
+                author: 'A Devotee',
+                date: 'April 20, 2024',
+                description: 'A heartfelt account of personal spiritual growth and devotion to the Guru.',
+                link: '#'
+            },
+            {
+                image: 'https://placehold.co/600x400/D1C4E9/FFFFFF?text=Ashram+Life',
+                title: 'Life in the Ashram: Harmony and Service',
+                author: 'Ashram Seeker',
+                date: 'March 5, 2024',
+                description: 'An inside look into the daily life, routines, and spiritual atmosphere of our ashrams.',
+                link: '#'
+            },
+            {
+                image: 'https://placehold.co/600x400/B2EBF2/000000?text=Community',
+                title: 'Building Communities: The Power of Collective Seva',
+                author: 'Community Lead',
+                date: 'Feb 18, 2024',
+                description: 'How collective selfless service fosters strong and supportive spiritual communities.',
+                link: '#'
+            }
+        ];
+
+        let loadedBlogPostsCount = 3; // Initially display 3 posts
+        const blogContainer = document.getElementById('blog-posts-container');
+        const loadMoreButton = document.getElementById('load-more-blog');
+
+        function renderBlogPosts(startIndex, count) {
+            const fragment = document.createDocumentFragment();
+            const postsToRender = allBlogPostsData.slice(startIndex, startIndex + count);
+
+            postsToRender.forEach((post, index) => {
+                const article = document.createElement('article');
+                article.className = 'bg-indigo-50 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:-translate-y-2 animate-on-scroll';
+                // Stagger animation for newly loaded elements
+                article.style.animationDelay = `${(index * 0.1) + 0.1}s`;
+
+                article.innerHTML = `
+                    <img src="${post.image}" alt="${post.title}" class="w-full h-48 object-cover">
+                    <div class="p-6 text-left">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${post.title}</h3>
+                        <p class="text-gray-700 text-sm mb-4">By ${post.author} | ${post.date}</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">${post.description}</p>
+                        <a href="${post.link}" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
+                            Read More <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                `;
+                fragment.appendChild(article);
+            });
+            blogContainer.appendChild(fragment);
+
+            // Hide load more button if all posts are loaded
+            if (loadedBlogPostsCount >= allBlogPostsData.length) {
+                loadMoreButton.style.display = 'none';
+            }
+            // Re-observe newly added elements for scroll animation
+            const primaryObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {root: null, rootMargin: '0px', threshold: 0.1});
+            const newAnimateElements = blogContainer.querySelectorAll('.animate-on-scroll:not(.is-visible)');
+            newAnimateElements.forEach(element => primaryObserver.observe(element));
+        }
+
+        // Initial load of blog posts
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBlogPosts(0, loadedBlogPostsCount);
+        });
+
+        // Load more button click handler
+        loadMoreButton.addEventListener('click', () => {
+            const postsToAdd = 3; // Load 3 more posts each time
+            renderBlogPosts(loadedBlogPostsCount, postsToAdd);
+            loadedBlogPostsCount += postsToAdd;
+        });
+
+        // Testimonial Carousel Functionality
+        const testimonialSlidesContainer = document.querySelector('.testimonial-slides-container');
+        const testimonialSlides = document.querySelectorAll('.testimonial-slide');
+        let currentTestimonialSlide = 0;
+
+        function updateTestimonialCarousel() {
+            // Get the width of the first slide, assuming all are uniform
+            // Add margin-right to the calculated width for proper slide spacing
+            const slideWidth = testimonialSlides[0].offsetWidth; // No margin in this width
+            // Each slide has a margin-right in Tailwind (e.g., gap-8 means 2rem or 32px gap)
+            // If grid-gap is used, get that. Assuming it's based on element width.
+            testimonialSlidesContainer.style.transform = `translateX(${-currentTestimonialSlide * slideWidth}px)`;
+            // Re-adjust if there's a gap property between slides. Here assuming min-width: 100% covers it.
+        }
+
+        function moveTestimonialSlide(direction) {
+            currentTestimonialSlide += direction;
+            if (currentTestimonialSlide < 0) {
+                currentTestimonialSlide = testimonialSlides.length - 1;
+            } else if (currentTestimonialSlide >= testimonialSlides.length) {
+                currentTestimonialSlide = 0;
+            }
+            updateTestimonialCarousel();
+        }
+
+        // Adjust testimonial carousel on window resize
+        window.addEventListener('resize', updateTestimonialCarousel);
+        // Initial testimonial carousel positioning
+        document.addEventListener('DOMContentLoaded', updateTestimonialCarousel);
+
+        // Hero Section Carousel Functionality
+        const heroSlides = document.querySelectorAll('.hero-carousel-slide');
+        let currentHeroSlide = 0;
+
+        function showHeroSlide(index) {
+            heroSlides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextHeroSlide() {
+            currentHeroSlide = (currentHeroSlide + 1) % heroSlides.length;
+            showHeroSlide(currentHeroSlide);
+        }
+
+        // Start hero carousel
+        let heroCarouselInterval = setInterval(nextHeroSlide, 5000); // Change slide every 5 seconds
+
+        // Stop/start hero carousel on tab visibility change (optional for performance)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(heroCarouselInterval);
+            } else {
+                heroCarouselInterval = setInterval(nextHeroSlide, 5000);
+            }
+        });
+        // Initial display for hero slide
+        document.addEventListener('DOMContentLoaded', () => showHeroSlide(0));
+
+        // Scroll Progress Indicator
+        const scrollProgress = document.getElementById('scroll-progress-indicator');
+        window.addEventListener('scroll', () => {
+            const totalHeight = document.body.scrollHeight - window.innerHeight;
+            // Prevent division by zero if scrollHeight is equal to innerHeight (very short content)
+            if (totalHeight > 0) {
+                const progress = (window.scrollY / totalHeight) * 100;
+                scrollProgress.style.width = `${progress}%`;
+            } else {
+                scrollProgress.style.width = `0%`; // No scrollbar, so 0% progress
+            }
+        });
     </script>
 </body>
 </html>
